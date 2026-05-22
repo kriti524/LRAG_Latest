@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+
+  flask-api:
+    build: .
+    container_name: rag_flask_api
+
+    ports:
+      - "5001:5001"
+
+    volumes:
+      - .:/app
+      - chroma_data:/app/chroma_store
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
+
+  streamlit-ui:
+    build: .
+    container_name: rag_streamlit_ui
+
+    command: streamlit run streamlit.py --server.port 8501 --server.address 0.0.0.0
+
+    ports:
+      - "8501:8501"
+
+    volumes:
+      - .:/app
+
+    env_file:
+      - .env
+
+    depends_on:
+      - flask-api
+
+    restart: unless-stopped
+
+volumes:
+  chroma_data:
